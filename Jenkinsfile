@@ -107,7 +107,7 @@ pipeline {
                             export BROWSERSTACK_USERNAME="$BROWSERSTACK_CREDS_USR"
                             export BROWSERSTACK_ACCESS_KEY="$BROWSERSTACK_CREDS_PSW"
                             
-                            echo "Username: ${BROWSERSTACK_CREDS_USR:0:3}***"
+                            echo "Username: $BROWSERSTACK_CREDS_USR***"
                             
                             # Run the 3 BrowserStack tests in parallel
                             uv run pytest tests/test_samsung_favorite_galaxy.py \
@@ -126,7 +126,7 @@ pipeline {
                             set BROWSERSTACK_USERNAME=%BROWSERSTACK_CREDS_USR%
                             set BROWSERSTACK_ACCESS_KEY=%BROWSERSTACK_CREDS_PSW%
                             
-                            echo Username: %BROWSERSTACK_CREDS_USR:~0,3%***
+                            echo Username: %BROWSERSTACK_CREDS_USR%***
                             
                             REM Run the 3 BrowserStack tests in parallel
                             uv run pytest tests/test_samsung_favorite_galaxy.py ^

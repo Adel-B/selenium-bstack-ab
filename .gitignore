@@ -35,6 +35,7 @@ venv.bak/
 htmlcov/
 .tox/
 .nox/
+test-reports/
 
 # IDE
 .vscode/

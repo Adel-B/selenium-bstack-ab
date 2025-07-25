@@ -1,0 +1,127 @@
+pipeline {
+    agent any
+    
+    environment {
+        // BrowserStack credentials (configure these in Jenkins)
+        BROWSERSTACK_CREDS = credentials('browserstack-creds')
+        EXECUTION_MODE = 'browserstack'
+    }
+    
+    stages {
+        stage('Setup') {
+            steps {
+                echo "🔄 Checking out code and setting up environment..."
+                
+                // Checkout code first
+                checkout scm
+                
+                script {
+                    if (isUnix()) {
+                        sh '''
+                            # Install uv if not present
+                            if ! command -v uv &> /dev/null; then
+                                curl -LsSf https://astral.sh/uv/install.sh | sh
+                            fi
+                            
+                            # Add uv to PATH
+                            export PATH="$HOME/.local/bin:$PATH"
+                            
+                            # Verify we have pyproject.toml
+                            ls -la pyproject.toml
+                            
+                            # Install dependencies
+                            uv sync
+                            
+                            # Create reports directory
+                            mkdir -p test-reports
+                        '''
+                    } else {
+                        bat '''
+                            REM Install uv if not present
+                            where uv >nul 2>nul || powershell -c "irm https://astral.sh/uv/install.ps1 | iex"
+                            
+                            REM Add uv to PATH (Windows)
+                            set PATH=%USERPROFILE%\\.cargo\\bin;%PATH%
+                            
+                            REM Verify we have pyproject.toml
+                            dir pyproject.toml
+                            
+                            REM Install dependencies
+                            uv sync
+                            
+                            REM Create reports directory
+                            mkdir test-reports
+                        '''
+                    }
+                }
+            }
+        }
+        
+        stage('Run BrowserStack Tests') {
+            steps {
+                echo "☁️ Running Galaxy S20+ tests on 3 browsers..."
+                script {
+                    if (isUnix()) {
+                        sh '''
+                            # Add uv to PATH
+                            export PATH="$HOME/.local/bin:$PATH"
+                            
+                            # Set BrowserStack credentials from Jenkins
+                            export BROWSERSTACK_USERNAME="$BROWSERSTACK_CREDS_USR"
+                            export BROWSERSTACK_ACCESS_KEY="$BROWSERSTACK_CREDS_PSW"
+                            
+                            echo "Username: ${BROWSERSTACK_CREDS_USR:0:3}***"
+                            
+                            # Run the 3 BrowserStack tests in parallel
+                            uv run pytest tests/test_samsung_favorite_galaxy.py \
+                                -n 3 \
+                                -v \
+                                --junit-xml=test-reports/results.xml \
+                                --html=test-reports/report.html \
+                                --self-contained-html
+                        '''
+                    } else {
+                        bat '''
+                            REM Add uv to PATH (Windows)
+                            set PATH=%USERPROFILE%\\.cargo\\bin;%PATH%
+                            
+                            REM Set BrowserStack credentials from Jenkins
+                            set BROWSERSTACK_USERNAME=%BROWSERSTACK_CREDS_USR%
+                            set BROWSERSTACK_ACCESS_KEY=%BROWSERSTACK_CREDS_PSW%
+                            
+                            echo Username: %BROWSERSTACK_CREDS_USR:~0,3%***
+                            
+                            REM Run the 3 BrowserStack tests in parallel
+                            uv run pytest tests/test_samsung_favorite_galaxy.py ^
+                                -n 3 ^
+                                -v ^
+                                --junit-xml=test-reports/results.xml ^
+                                --html=test-reports/report.html ^
+                                --self-contained-html
+                        '''
+                    }
+                }
+            }
+        }
+    }
+    
+    post {
+        always {
+            // Publish test results using junit
+            junit testResults: 'test-reports/results.xml', allowEmptyResults: true
+            
+            // Archive test artifacts (including HTML report)
+            archiveArtifacts artifacts: 'test-reports/**/*', allowEmptyArchive: true
+            
+            echo "📋 Test reports archived. Download 'test-reports/report.html' from build artifacts to view detailed results."
+        }
+        
+        success {
+            echo "✅ All 3 BrowserStack tests passed!"
+        }
+        
+        failure {
+            echo "❌ Some tests failed. Check the report for details."
+        }
+    }
+} 

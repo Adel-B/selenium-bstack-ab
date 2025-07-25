@@ -1,6 +1,5 @@
 """Tests for BasePage class functionality and mode selection."""
 
-
 import pytest
 from selenium.common.exceptions import TimeoutException
 

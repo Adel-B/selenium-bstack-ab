@@ -1,6 +1,5 @@
 """Tests for page objects functionality."""
 
-
 import pytest
 
 from pages.favorites_page import FavoritesPage

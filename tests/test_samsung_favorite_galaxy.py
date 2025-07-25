@@ -15,11 +15,14 @@ Supported platforms:
 Features BrowserStack SDK integration for enhanced test reporting.
 """
 
+from typing import Any
+
 import pytest
 from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
-from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
+from selenium.webdriver.support.ui import WebDriverWait
+
 from pages.base_page import BasePage
 from utils.env_loader import config
 from utils.logger_config import get_test_logger
@@ -28,7 +31,7 @@ from utils.logger_config import get_test_logger
 class TestSamsungFavoriteGalaxy:
     """Cross-browser product favoriting test suite with configurable test data."""
 
-    def setup_method(self):
+    def setup_method(self) -> None:
         """Setup for each test method"""
         self.logger = get_test_logger("samsung_favorite_galaxy")
 
@@ -40,7 +43,7 @@ class TestSamsungFavoriteGalaxy:
             "Samsung_Galaxy_S22_Chrome",
         ],
     )
-    def test_favorite_galaxy_cross_browser(self, capability_name):
+    def test_favorite_galaxy_cross_browser(self, capability_name: str) -> None:
         """
         Test product favoriting across multiple browser platforms.
 
@@ -92,7 +95,7 @@ class TestSamsungFavoriteGalaxy:
         finally:
             base_page.close()
 
-    def _mark_test_status(self, driver, status, reason):
+    def _mark_test_status(self, driver: Any, status: str, reason: str) -> None:
         """
         Update test execution status in BrowserStack dashboard.
 
@@ -113,7 +116,9 @@ class TestSamsungFavoriteGalaxy:
         except Exception as e:
             self.logger.warning(f"⚠️ Could not mark BrowserStack status: {str(e)}")
 
-    def _run_favorite_workflow(self, driver, wait, platform_name):
+    def _run_favorite_workflow(
+        self, driver: Any, wait: Any, platform_name: str
+    ) -> None:
         """
         Execute the complete product favoriting workflow.
 

@@ -39,7 +39,7 @@ python_functions = ["test_*"]
 
 [tool.black]
 line-length = 88
-target-version = ['py310']
+target-version = ['py39']
 include = '\.pyi?$'
 
 [tool.ruff]
@@ -61,4 +61,10 @@ ignore = [
 python_version = "3.10"
 warn_return_any = true
 warn_unused_configs = true
-disallow_untyped_defs = true 
+disallow_untyped_defs = true
+
+# Be less strict with test files
+[[tool.mypy.overrides]]
+module = "tests.*"
+disallow_untyped_defs = false
+ignore_errors = true 

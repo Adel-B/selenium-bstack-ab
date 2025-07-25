@@ -1,8 +1,7 @@
 """BrowserStack capabilities configuration for cross-browser testing."""
 
-from typing import Any, Dict, List
 import datetime
-
+from typing import Any, Dict, List
 
 # Shared build name for all tests in this run
 _SHARED_BUILD_NAME = None

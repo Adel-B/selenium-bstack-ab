@@ -29,8 +29,8 @@ pipeline {
                             # Verify we have pyproject.toml
                             ls -la pyproject.toml
                             
-                            # Install dependencies
-                            uv sync
+                            # Install dependencies (including dev tools)
+                            uv sync --extra dev
                             
                             # Create reports directory
                             mkdir -p test-reports
@@ -46,11 +46,48 @@ pipeline {
                             REM Verify we have pyproject.toml
                             dir pyproject.toml
                             
-                            REM Install dependencies
-                            uv sync
+                            REM Install dependencies (including dev tools)
+                            uv sync --extra dev
                             
                             REM Create reports directory
                             mkdir test-reports
+                        '''
+                    }
+                }
+            }
+        }
+        
+        stage('Code Quality') {
+            steps {
+                echo "🔍 Running code quality checks..."
+                script {
+                    if (isUnix()) {
+                        sh '''
+                            # Add uv to PATH
+                            export PATH="$HOME/.local/bin:$PATH"
+                            
+                            echo "📝 Formatting code with Black..."
+                            uv run black --check --diff .
+                            
+                            echo "🔍 Linting with Ruff..."
+                            uv run ruff check .
+                            
+                            echo "🔎 Type checking with MyPy..."
+                            uv run mypy .
+                        '''
+                    } else {
+                        bat '''
+                            REM Add uv to PATH (Windows)
+                            set PATH=%USERPROFILE%\\.cargo\\bin;%PATH%
+                            
+                            echo 📝 Formatting code with Black...
+                            uv run black --check --diff .
+                            
+                            echo 🔍 Linting with Ruff...
+                            uv run ruff check .
+                            
+                            echo 🔎 Type checking with MyPy...
+                            uv run mypy .
                         '''
                     }
                 }

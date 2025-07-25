@@ -110,7 +110,6 @@ class BasePage:
             browser_mapping = {
                 "chrome": "Windows_10_Chrome",
                 "safari": "macOS_Safari",
-                "firefox": "macOS_Monterey_Firefox",
                 "firefox": "macOS_Ventura_Firefox",
             }
             capability_name = browser_mapping.get(

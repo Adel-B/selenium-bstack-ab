@@ -60,4 +60,8 @@ docker exec [CONTAINER_ID] cat /var/jenkins_home/secrets/initialAdminPassword
 - **Test Results**: JUnit test results
 - **Test Results** link: View HTML report
 
-That's it! Your pipeline will run the 3 BrowserStack tests in parallel. 
+That's it! Your pipeline will:
+1. **Install dependencies** using uv (including dev tools)
+2. **Run code quality checks** (Black formatting, Ruff linting, MyPy type checking)
+3. **Execute BrowserStack tests** in parallel across 3 browsers
+4. **Generate comprehensive reports** and archive artifacts 

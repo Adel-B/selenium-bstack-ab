@@ -18,9 +18,22 @@ fi
 echo "✅ BrowserStack credentials found"
 echo "Username: ${BROWSERSTACK_USERNAME:0:3}***"
 
-# Install dependencies
+# Install dependencies (including dev tools)
 echo "📦 Installing dependencies..."
-uv sync
+uv sync --extra dev
+
+# Run code quality checks
+echo "🔍 Running code quality checks..."
+echo "📝 Formatting check with Black..."
+uv run black --check --diff .
+
+echo "🔍 Linting with Ruff..."
+uv run ruff check .
+
+echo "🔎 Type checking with MyPy..."
+uv run mypy .
+
+echo "✅ Code quality checks passed!"
 
 # Create reports directory
 mkdir -p test-reports

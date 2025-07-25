@@ -70,6 +70,22 @@ class EnvironmentConfig:
         """Test application password."""
         return self.get_optional_env("TEST_PASSWORD", "testingisfun99")
 
+    # Product Test Data
+    @property
+    def target_brand(self) -> str:
+        """Target brand filter for product testing."""
+        return self.get_optional_env("TARGET_BRAND", "Samsung")
+
+    @property
+    def target_product_name(self) -> str:
+        """Target product name for favoriting test."""
+        return self.get_optional_env("TARGET_PRODUCT_NAME", "Galaxy S20+")
+
+    @property
+    def target_product_id(self) -> str:
+        """Target product ID for favoriting test."""
+        return self.get_optional_env("TARGET_PRODUCT_ID", "11")
+
     def validate_browserstack_credentials(self) -> bool:
         """Validate that BrowserStack credentials are available.
 

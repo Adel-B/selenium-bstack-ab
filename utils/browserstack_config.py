@@ -1,6 +1,20 @@
 """BrowserStack capabilities configuration for cross-browser testing."""
 
 from typing import Any, Dict, List
+import datetime
+
+
+# Shared build name for all tests in this run
+_SHARED_BUILD_NAME = None
+
+
+def get_build_name() -> str:
+    """Generate timestamped build name for BrowserStack tracking (shared across parallel tests)."""
+    global _SHARED_BUILD_NAME
+    if _SHARED_BUILD_NAME is None:
+        timestamp = datetime.datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
+        _SHARED_BUILD_NAME = f"samsung-galaxy-favoriting-{timestamp}"
+    return _SHARED_BUILD_NAME
 
 
 class BrowserStackCapabilities:
@@ -18,12 +32,40 @@ class BrowserStackCapabilities:
             "browserVersion": "latest",
             "os": "Windows",
             "osVersion": "10",
-            "sessionName": "Samsung Galaxy S20+ Favorite Test - Windows Chrome",
-            "buildName": "selenium-bstack-ab-build",
-            "projectName": "Cross-Browser Samsung Galaxy Test",
+            "sessionName": "Samsung Galaxy S20+ Favoriting - Windows 10 Chrome",
+            "buildName": get_build_name(),
+            "projectName": "Samsung Galaxy S20+ Cross-Browser Testing",
             "local": False,
             "seleniumVersion": "4.15.0",
             "resolution": "1920x1080",
+            # SDK recommendations
+            "browserstack.debug": True,
+            "browserstack.console": "info",
+            "browserstack.networkLogs": True,
+        }
+
+    @staticmethod
+    def get_macos_safari() -> Dict[str, Any]:
+        """macOS Safari capabilities for BrowserStack.
+
+        Returns:
+            Dictionary containing BrowserStack capabilities for macOS Safari
+        """
+        return {
+            "browserName": "Safari",
+            "browserVersion": "latest",
+            "os": "OS X",
+            "osVersion": "Ventura",
+            "sessionName": "Samsung Galaxy S20+ Favoriting - macOS Safari",
+            "buildName": get_build_name(),
+            "projectName": "Samsung Galaxy S20+ Cross-Browser Testing",
+            "local": False,
+            "seleniumVersion": "4.15.0",
+            "resolution": "1920x1080",
+            # SDK recommendations
+            "browserstack.debug": True,
+            "browserstack.console": "info",
+            "browserstack.networkLogs": True,
         }
 
     @staticmethod
@@ -38,12 +80,40 @@ class BrowserStackCapabilities:
             "browserVersion": "latest",
             "os": "OS X",
             "osVersion": "Ventura",
-            "sessionName": "Samsung Galaxy S20+ Favorite Test - macOS Firefox",
-            "buildName": "selenium-bstack-ab-build",
-            "projectName": "Cross-Browser Samsung Galaxy Test",
+            "sessionName": "Samsung Galaxy S20+ Favoriting - macOS Ventura Firefox",
+            "buildName": get_build_name(),
+            "projectName": "Samsung Galaxy S20+ Cross-Browser Testing",
             "local": False,
             "seleniumVersion": "4.15.0",
             "resolution": "1920x1080",
+            # SDK recommendations
+            "browserstack.debug": True,
+            "browserstack.console": "info",
+            "browserstack.networkLogs": True,
+        }
+
+    @staticmethod
+    def get_macos_monterey_firefox() -> Dict[str, Any]:
+        """macOS Monterey Firefox capabilities for BrowserStack.
+
+        Returns:
+            Dictionary containing BrowserStack capabilities for macOS Monterey Firefox
+        """
+        return {
+            "browserName": "Firefox",
+            "browserVersion": "latest",
+            "os": "OS X",
+            "osVersion": "Monterey",
+            "sessionName": "Samsung Galaxy S20+ Favoriting - macOS Monterey Firefox",
+            "buildName": get_build_name(),
+            "projectName": "Samsung Galaxy S20+ Cross-Browser Testing",
+            "local": False,
+            "seleniumVersion": "4.15.0",
+            "resolution": "1920x1080",
+            # SDK recommendations
+            "browserstack.debug": True,
+            "browserstack.console": "info",
+            "browserstack.networkLogs": True,
         }
 
     @staticmethod
@@ -58,10 +128,15 @@ class BrowserStackCapabilities:
             "platformVersion": "12.0",
             "deviceName": "Samsung Galaxy S22",
             "browserName": "Chrome",
-            "sessionName": "Samsung Galaxy S20+ Favorite Test - Galaxy S22",
-            "buildName": "selenium-bstack-ab-build",
-            "projectName": "Cross-Browser Samsung Galaxy Test",
+            "sessionName": "Samsung Galaxy S20+ Favoriting - Samsung Galaxy S22",
+            "buildName": get_build_name(),
+            "projectName": "Samsung Galaxy S20+ Cross-Browser Testing",
             "local": False,
+            # SDK recommendations for mobile
+            "browserstack.debug": True,
+            "browserstack.console": "info",
+            "browserstack.networkLogs": True,
+            "browserstack.appiumLogs": True,
         }
 
     @classmethod
@@ -73,7 +148,8 @@ class BrowserStackCapabilities:
         """
         return [
             cls.get_windows_chrome(),
-            cls.get_macos_firefox(),
+            cls.get_macos_safari(),
+            cls.get_macos_monterey_firefox(),
             cls.get_samsung_galaxy_s22(),
         ]
 
@@ -86,7 +162,8 @@ class BrowserStackCapabilities:
         """
         return [
             "Windows_10_Chrome",
-            "macOS_Ventura_Firefox",
+            "macOS_Safari",
+            "macOS_Monterey_Firefox",
             "Samsung_Galaxy_S22_Chrome",
         ]
 

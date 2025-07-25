@@ -109,6 +109,8 @@ class BasePage:
             # Default mapping for browser names
             browser_mapping = {
                 "chrome": "Windows_10_Chrome",
+                "safari": "macOS_Safari",
+                "firefox": "macOS_Monterey_Firefox",
                 "firefox": "macOS_Ventura_Firefox",
             }
             capability_name = browser_mapping.get(
@@ -173,7 +175,9 @@ class BasePage:
         """
         capability_methods = {
             "Windows_10_Chrome": BrowserStackCapabilities.get_windows_chrome,
+            "macOS_Safari": BrowserStackCapabilities.get_macos_safari,
             "macOS_Ventura_Firefox": BrowserStackCapabilities.get_macos_firefox,
+            "macOS_Monterey_Firefox": BrowserStackCapabilities.get_macos_monterey_firefox,
             "Samsung_Galaxy_S22_Chrome": BrowserStackCapabilities.get_samsung_galaxy_s22,
         }
 

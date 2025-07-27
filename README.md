@@ -119,3 +119,12 @@ Production-ready test automation demonstrating:
 - **Comprehensive reporting** for stakeholders and debugging
 
 Perfect for validating web applications across multiple browsers with enterprise-level reliability.
+
+## 📸 Evidence & Screenshots
+
+See [docs/README.md](docs/README.md) for screenshots demonstrating:
+- **Jenkins pipeline** with all stages passed
+- **BrowserStack parallel execution** across 3 browsers  
+- **Complete test workflow** validation
+
+Only 4 essential screenshots required for tech challenge evidence.

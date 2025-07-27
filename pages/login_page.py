@@ -3,6 +3,7 @@
 from typing import Optional
 
 from selenium.webdriver.common.by import By
+from selenium.webdriver.common.keys import Keys
 
 from pages.base_page import BasePage
 from utils.env_loader import config
@@ -99,15 +100,13 @@ class LoginPage(BasePage):
         username_dropdown = self.wait_for_element_clickable(self.USERNAME_CONTAINER)
         username_dropdown.click()
 
-        # Wait for dropdown options to appear and select the specified user
-        # The options appear with IDs like: react-select-2-option-0, react-select-2-option-1, etc.
-        # For demouser, it's typically option 1, but we should make this more flexible
-        user_option = (
-            By.ID,
-            f"{self.USERNAME_OPTION_LOCATOR}1",
-        )  # Default to option 1 for demouser
-        self.wait_for_element_visible(user_option, timeout=10)
-        self.click_element(user_option)
+        # Send keys directly to the input field (more reliable than clicking options)
+        # The input ID is typically react-select-2-input but can vary
+        username_input = self.wait_for_element_visible(
+            (By.CSS_SELECTOR, "#username input"), timeout=10
+        )
+        username_input.send_keys(username)
+        username_input.send_keys(Keys.ENTER)
 
         self.logger.info(f"✅ Username '{username}' selected")
 
@@ -124,14 +123,13 @@ class LoginPage(BasePage):
         password_dropdown = self.wait_for_element_clickable(self.PASSWORD_CONTAINER)
         password_dropdown.click()
 
-        # Wait for dropdown options to appear and select the specified password
-        # The password for demouser is typically option 1
-        password_option = (
-            By.ID,
-            f"{self.PASSWORD_OPTION_LOCATOR}1",
-        )  # Default for demouser password
-        self.wait_for_element_visible(password_option, timeout=10)
-        self.click_element(password_option)
+        # Send keys directly to the input field (more reliable than clicking options)
+        # The input ID is typically react-select-3-input but can vary
+        password_input = self.wait_for_element_visible(
+            (By.CSS_SELECTOR, "#password input"), timeout=10
+        )
+        password_input.send_keys(password)
+        password_input.send_keys(Keys.ENTER)
 
         self.logger.info("✅ Password selected")
 

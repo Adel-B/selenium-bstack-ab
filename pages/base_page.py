@@ -389,3 +389,44 @@ class BasePage:
     def __exit__(self, exc_type: Any, exc_val: Any, exc_tb: Any) -> None:
         """Context manager exit with cleanup."""
         self.close()
+
+    @classmethod
+    def _create_with_existing_driver(
+        cls, driver: WebDriver, timeout: int = 30
+    ) -> "BasePage":
+        """
+        Create a page object instance with an existing WebDriver.
+
+        This method allows page objects to work with drivers provided by
+        external frameworks like BrowserStack SDK.
+
+        Args:
+            driver: Existing WebDriver instance
+            timeout: Default timeout for operations
+
+        Returns:
+            Page object instance with the provided driver
+        """
+        # Create instance without calling parent __init__
+        instance = cls.__new__(cls)
+
+        # Set required attributes manually
+        instance.driver = driver
+        instance.timeout = timeout
+        instance.wait = WebDriverWait(driver, timeout)
+        instance.logger = get_test_logger(cls.__name__.lower())
+
+        # Set execution mode based on driver capabilities
+        try:
+            capabilities = driver.capabilities
+            if (
+                "browserstack.user" in capabilities
+                or "browserstack:options" in capabilities
+            ):
+                instance.execution_mode = "browserstack"
+            else:
+                instance.execution_mode = "local"
+        except Exception:
+            instance.execution_mode = "unknown"
+
+        return instance

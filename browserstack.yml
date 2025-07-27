@@ -1,0 +1,59 @@
+# BrowserStack SDK Configuration
+# https://www.browserstack.com/docs/automate/selenium/sdk-params
+
+# Authentication (will be set via environment variables)
+userName: ${BROWSERSTACK_USERNAME}
+accessKey: ${BROWSERSTACK_ACCESS_KEY}
+
+# Project configuration
+projectName: "Samsung-Galaxy-S20-Cross-Browser-Testing"
+buildName: "samsung-galaxy-favoriting"
+CUSTOM_TAG_1: "BrowserStack-SDK-Integration-Test"
+
+# Cross-browser testing platforms
+platforms:
+  - os: "Windows"
+    osVersion: "10"
+    browserName: "Chrome"
+    browserVersion: "latest"
+    
+  - os: "OS X" 
+    osVersion: "Ventura"
+    browserName: "Firefox"
+    browserVersion: "latest"
+    
+  - deviceName: "Samsung Galaxy S22"
+    osVersion: "12.0"
+    browserName: "Chrome"
+
+# Parallelization settings
+parallelsPerPlatform: 1
+
+# Test context configuration
+testContextOptions:
+  skipSessionName: false
+  skipSessionStatus: false
+
+# Framework declaration (required for SDK)
+framework: pytest
+
+# BrowserStack integrations
+testObservability: true
+accessibility: false
+percy: false
+
+# Local testing (disabled for cloud testing)
+browserstackLocal: false
+
+# Debugging and logging
+debug: true
+consoleLogs: info
+networkLogs: true
+
+# Session configuration
+sessionName: "Samsung Galaxy S20+ Favoriting"
+resolution: "1920x1080"
+seleniumVersion: "4.15.0"
+
+# Timeout settings
+idleTimeout: 300 

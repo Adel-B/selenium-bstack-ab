@@ -1,222 +1,218 @@
 #!/usr/bin/env python3
 """
-Cross-Browser Product Favoriting Test
+Unified Cross-Browser Product Favoriting Test with POM
 
-Test suite for validating product favoriting functionality across multiple
-browsers and platforms using BrowserStack. Test data is configurable via
-environment variables.
+This test uses Selenium WebDriver with Page Object Model (POM) pattern,
+supporting both local and BrowserStack execution modes.
 
-Supported platforms:
-- Windows 10 Chrome
-- macOS Safari
-- macOS Monterey Firefox
-- Samsung Galaxy S22 Chrome
+Features:
+- Automatic execution mode detection (local vs BrowserStack)
+- BrowserStack SDK integration for cloud testing
+- Local WebDriver management for development
+- Cross-browser testing on multiple platforms
+- Page Object Model for maintainable test structure
+- Single test file for both execution modes
 
-Features BrowserStack SDK integration for enhanced test reporting.
+Validates the complete user workflow:
+1. Navigate to the demo application
+2. Login with configured credentials
+3. Filter products by target brand
+4. Favorite the target device
+5. Verify device appears in favorites page
 """
 
-from typing import Any
+import os
 
 import pytest
-from selenium.webdriver.common.by import By
-from selenium.webdriver.common.keys import Keys
-from selenium.webdriver.support import expected_conditions as EC
-from selenium.webdriver.support.ui import WebDriverWait
+from selenium import webdriver
+from selenium.webdriver.chrome.service import Service
+from webdriver_manager.chrome import ChromeDriverManager
 
-from pages.base_page import BasePage
+from pages.favorites_page import FavoritesPage
+from pages.login_page import LoginPage
+from pages.product_page import ProductPage
 from utils.env_loader import config
 from utils.logger_config import get_test_logger
 
 
-class TestSamsungFavoriteGalaxy:
-    """Cross-browser product favoriting test suite with configurable test data."""
+def get_execution_mode() -> str:
+    """Get execution mode from environment variable or detect from context.
 
-    def setup_method(self) -> None:
-        """Setup for each test method"""
-        self.logger = get_test_logger("samsung_favorite_galaxy")
+    Returns:
+        Execution mode: 'local' or 'browserstack'
+    """
+    # Check explicit environment variable first
+    explicit_mode = os.getenv("EXECUTION_MODE", "").lower()
+    if explicit_mode in ["local", "browserstack"]:
+        return explicit_mode
 
-    @pytest.mark.parametrize(
-        "capability_name",
-        [
-            "Windows_10_Chrome",
-            "macOS_Ventura_Firefox",
-            "Samsung_Galaxy_S22_Chrome",
-        ],
+    # Auto-detect from BrowserStack environment variables
+    if os.getenv("BROWSERSTACK_USERNAME") and os.getenv("BROWSERSTACK_ACCESS_KEY"):
+        return "browserstack"
+
+    # Default to local
+    return "local"
+
+
+def create_local_driver(browser: str = "chrome"):
+    """Create a local WebDriver instance for development/testing.
+
+    Args:
+        browser: Browser name (currently supports 'chrome')
+
+    Returns:
+        WebDriver instance for local execution
+    """
+    if browser.lower() == "chrome":
+        options = webdriver.ChromeOptions()
+        options.add_argument("--no-sandbox")
+        options.add_argument("--disable-dev-shm-usage")
+        options.add_argument("--disable-gpu")
+        options.add_argument("--window-size=1920,1080")
+
+        service = Service(ChromeDriverManager().install())
+        driver = webdriver.Chrome(service=service, options=options)
+        return driver
+    else:
+        raise ValueError(f"Unsupported browser for local execution: {browser}")
+
+
+def test_favorite_galaxy_local():
+    """
+    Local test for product favoriting using Chrome.
+
+    This test runs locally for development and debugging purposes.
+    Uses Chrome browser on the local machine.
+    """
+    execution_mode = get_execution_mode()
+
+    # Only run this test in local mode
+    if execution_mode != "local":
+        pytest.skip("This test is only for local execution")
+
+    # Create local driver
+    driver = create_local_driver("chrome")
+
+    try:
+        logger = get_test_logger("samsung_favorite_galaxy_local")
+        logger.info(
+            f"🌐 Starting {config.target_product_name} favoriting test on Local Chrome ({execution_mode} mode)"
+        )
+
+        # Run the workflow using Page Object Model
+        _run_favorite_workflow_with_pom(driver, logger, "Local Chrome")
+
+        logger.info(
+            f"✅ {config.target_product_name} favoriting test completed successfully on Local Chrome!"
+        )
+
+    except Exception as e:
+        logger.error(
+            f"❌ {config.target_product_name} favoriting test failed on Local Chrome: {str(e)}"
+        )
+        raise
+    finally:
+        driver.quit()
+
+
+def test_favorite_galaxy_browserstack(driver):
+    """
+    BrowserStack test for product favoriting.
+
+    This test runs on BrowserStack using the SDK's automatic platform management.
+    The BrowserStack SDK automatically handles the cross-browser testing across
+    the platforms defined in browserstack.yml.
+
+    The 'driver' fixture is automatically provided by the BrowserStack SDK.
+
+    Args:
+        driver: BrowserStack WebDriver instance automatically managed by SDK
+    """
+    execution_mode = get_execution_mode()
+
+    # Only run this test in browserstack mode
+    if execution_mode != "browserstack":
+        pytest.skip("This test is only for BrowserStack execution")
+
+    logger = get_test_logger("samsung_favorite_galaxy_browserstack")
+    logger.info(
+        f"🌐 Starting {config.target_product_name} favoriting test on BrowserStack ({execution_mode} mode)"
     )
-    def test_favorite_galaxy_cross_browser(self, capability_name: str) -> None:
-        """
-        Test product favoriting across multiple browser platforms.
 
-        Validates the complete user workflow:
-        1. Navigate to the demo application
-        2. Login with configured credentials
-        3. Filter products by target brand
-        4. Favorite the target device
-        5. Verify device appears in favorites page
+    try:
+        # Run the workflow using Page Object Model
+        _run_favorite_workflow_with_pom(driver, logger, "BrowserStack")
 
-        Args:
-            capability_name: BrowserStack capability configuration name
-        """
-        self.logger.info(
-            f"🌐 Starting {config.target_product_name} favoriting test on {capability_name}"
+        logger.info(
+            f"✅ {config.target_product_name} favoriting test completed successfully on BrowserStack!"
         )
 
-        # Initialize BrowserStack browser with SDK integration
-        base_page = BasePage(
-            execution_mode="browserstack", capability_name=capability_name
+    except Exception as e:
+        logger.error(
+            f"❌ {config.target_product_name} favoriting test failed on BrowserStack: {str(e)}"
         )
-        driver = base_page.driver
-        wait = WebDriverWait(driver, 20)
+        raise
 
-        try:
-            # Mark test as started
-            self._mark_test_status(
-                driver, "started", f"Starting {capability_name} test"
-            )
 
-            # Run the workflow
-            self._run_favorite_workflow(driver, wait, capability_name)
+def _run_favorite_workflow_with_pom(driver, logger, platform_name: str):
+    """
+    Execute the complete product favoriting workflow using Page Object Model.
 
-            # Mark test as passed
-            self._mark_test_status(
-                driver, "passed", f"{capability_name} test completed successfully"
-            )
+    Args:
+        driver: WebDriver instance (local or BrowserStack)
+        logger: Logger instance for test output
+        platform_name: Platform identifier for logging context
+    """
+    # Initialize page objects with the provided driver
+    login_page = LoginPage._create_with_existing_driver(driver)
+    product_page = ProductPage._create_with_existing_driver(driver)
+    favorites_page = FavoritesPage._create_with_existing_driver(driver)
 
-        except Exception as e:
-            self.logger.error(
-                f"❌ {config.target_product_name} favoriting test failed on {capability_name}: {str(e)}"
-            )
+    # Step 1: Navigate to login page and login
+    logger.info(f"📝 [{platform_name}] Step 1: Navigate to bstackdemo.com and login")
+    login_page.login()  # Uses default credentials from config
+    logger.info(f"✅ [{platform_name}] Login completed successfully")
 
-            # Mark test as failed
-            self._mark_test_status(
-                driver, "failed", f"{capability_name} test failed: {str(e)}"
-            )
-            raise
-        finally:
-            base_page.close()
+    # Step 2: Filter products by Samsung brand
+    logger.info(f"🔍 [{platform_name}] Step 2: Apply {config.target_brand} filter")
+    product_page.filter_by_samsung()
+    product_page.wait_for_filtered_products_to_load()
+    logger.info(f"✅ [{platform_name}] Samsung filter applied successfully")
 
-    def _mark_test_status(self, driver: Any, status: str, reason: str) -> None:
-        """
-        Update test execution status in BrowserStack dashboard.
-
-        Uses BrowserStack's SDK executor to provide real-time test status
-        updates for enhanced test reporting and debugging capabilities.
-
-        Args:
-            driver: WebDriver instance connected to BrowserStack
-            status: Test execution status ('started', 'passed', 'failed')
-            reason: Descriptive message explaining the status change
-        """
-        try:
-            # BrowserStack SDK status marking
-            driver.execute_script(
-                f'browserstack_executor: {{"action": "setSessionStatus", "arguments": {{"status": "{status}", "reason": "{reason}"}}}}'
-            )
-            self.logger.info(f"📊 BrowserStack status marked: {status} - {reason}")
-        except Exception as e:
-            self.logger.warning(f"⚠️ Could not mark BrowserStack status: {str(e)}")
-
-    def _run_favorite_workflow(
-        self, driver: Any, wait: Any, platform_name: str
-    ) -> None:
-        """
-        Execute the complete product favoriting workflow.
-
-        Performs the end-to-end user journey: login, product filtering,
-        device favoriting, and verification on favorites page.
-
-        Args:
-            driver: WebDriver instance for browser automation
-            wait: WebDriverWait instance for element synchronization
-            platform_name: Browser/platform identifier for logging context
-        """
-        # Navigate to bstackdemo.com
-        self.logger.info(f"📝 [{platform_name}] Navigate to bstackdemo.com")
-        driver.get(config.base_url)
-
-        # Click Sign In
-        self.logger.info(f"🔐 [{platform_name}] Click Sign In")
-        sign_in = wait.until(EC.element_to_be_clickable((By.ID, "signin")))
-        sign_in.click()
-
-        # Click username container to open dropdown, then type
-        self.logger.info(f"👤 [{platform_name}] Select Username")
-        username_container = wait.until(EC.element_to_be_clickable((By.ID, "username")))
-        username_container.click()
-
-        # Send keys directly to the input without clicking it
-        username_input = wait.until(
-            EC.presence_of_element_located((By.ID, "react-select-2-input"))
-        )
-        username_input.send_keys(config.test_username)
-        username_input.send_keys(Keys.ENTER)
-
-        # Click password container to open dropdown, then type
-        self.logger.info(f"🔑 [{platform_name}] Select Password")
-        password_container = wait.until(EC.element_to_be_clickable((By.ID, "password")))
-        password_container.click()
-
-        # Send keys directly to the input without clicking it
-        password_input = wait.until(
-            EC.presence_of_element_located((By.ID, "react-select-3-input"))
-        )
-        password_input.send_keys(config.test_password)
-        password_input.send_keys(Keys.ENTER)
-
-        # Click Log In button
-        self.logger.info(f"✅ [{platform_name}] Click Log In")
-        login_btn = wait.until(EC.element_to_be_clickable((By.ID, "login-btn")))
-        login_btn.click()
-
-        # Wait for login to complete
-        wait.until(EC.presence_of_element_located((By.CLASS_NAME, "shelf-item")))
-
-        # Click brand filter
-        self.logger.info(f"🔍 [{platform_name}] Apply {config.target_brand} filter")
-        brand_filter = wait.until(
-            EC.element_to_be_clickable(
-                (
-                    By.XPATH,
-                    f"//div[@class='filters-available-size']//input[@value='{config.target_brand}']/parent::label",
-                )
-            )
-        )
-        brand_filter.click()
-
-        # Wait for filtered products to load
-        wait.until(EC.presence_of_element_located((By.ID, config.target_product_id)))
-
-        # Click favorite button for target product
-        self.logger.info(f"❤️ [{platform_name}] Favorite {config.target_product_name}")
-        favorite_btn = wait.until(
-            EC.element_to_be_clickable(
-                (
-                    By.CSS_SELECTOR,
-                    f"[id='{config.target_product_id}'] .shelf-stopper button",
-                )
-            )
-        )
-        favorite_btn.click()
-
-        # Click Favourites link
-        self.logger.info(f"📄 [{platform_name}] Navigate to Favourites page")
-        favourites_link = wait.until(EC.element_to_be_clickable((By.ID, "favourites")))
-        favourites_link.click()
-
-        # Verify target product is visible on favourites page
-        self.logger.info(
-            f"✅ [{platform_name}] Verify {config.target_product_name} is visible"
-        )
-        target_product = wait.until(
-            EC.visibility_of_element_located(
-                (By.XPATH, f"//p[text()='{config.target_product_name}']")
-            )
+    # Step 3: Verify Galaxy S20+ is visible and favorite it
+    logger.info(f"❤️ [{platform_name}] Step 3: Favorite {config.target_product_name}")
+    if not product_page.is_galaxy_s20_plus_visible():
+        raise AssertionError(
+            f"{config.target_product_name} should be visible after Samsung filter on {platform_name}"
         )
 
-        assert (
-            target_product.is_displayed()
-        ), f"{config.target_product_name} should be visible on favourites page on {platform_name}"
+    product_page.click_galaxy_s20_plus_favorite()
+    logger.info(
+        f"✅ [{platform_name}] {config.target_product_name} favorited successfully"
+    )
 
-        self.logger.info(
-            f"🎉 [{platform_name}] {config.target_product_name} favoriting test completed successfully!"
+    # Step 4: Navigate to favorites page
+    logger.info(f"📄 [{platform_name}] Step 4: Navigate to Favourites page")
+    product_page.navigate_to_favorites()
+    logger.info(f"✅ [{platform_name}] Navigated to favorites page")
+
+    # Step 5: Verify Galaxy S20+ is visible on favorites page
+    logger.info(
+        f"✅ [{platform_name}] Step 5: Verify {config.target_product_name} is visible on favorites page"
+    )
+    if not favorites_page.is_galaxy_s20_plus_on_favorites_page():
+        raise AssertionError(
+            f"{config.target_product_name} should be visible on favorites page on {platform_name}"
         )
+
+    # Get the actual title for verification
+    actual_title = favorites_page.get_galaxy_s20_plus_title_on_favorites_page()
+    expected_title = config.target_product_name
+
+    assert (
+        actual_title == expected_title
+    ), f"Expected '{expected_title}' but found '{actual_title}' on {platform_name}"
+
+    logger.info(
+        f"🎉 [{platform_name}] {config.target_product_name} favoriting test completed successfully with POM!"
+    )

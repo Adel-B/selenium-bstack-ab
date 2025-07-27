@@ -109,9 +109,9 @@ pipeline {
                             
                             echo "Username: $BROWSERSTACK_CREDS_USR***"
                             
-                            # Run the 3 BrowserStack tests in parallel
-                            uv run pytest tests/test_samsung_favorite_galaxy.py \
-                                -n 3 \
+                            # Run unified tests (supports both local and BrowserStack)
+                            echo "🚀 Running unified BrowserStack tests..."
+                            uv run browserstack-sdk pytest tests/test_samsung_favorite_galaxy.py \
                                 -v \
                                 --junit-xml=test-reports/results.xml \
                                 --html=test-reports/report.html \
@@ -128,9 +128,9 @@ pipeline {
                             
                             echo Username: %BROWSERSTACK_CREDS_USR%***
                             
-                            REM Run the 3 BrowserStack tests in parallel
-                            uv run pytest tests/test_samsung_favorite_galaxy.py ^
-                                -n 3 ^
+                            REM Run unified tests (supports both local and BrowserStack)
+                            echo Running unified BrowserStack tests...
+                            uv run browserstack-sdk pytest tests/test_samsung_favorite_galaxy.py ^
                                 -v ^
                                 --junit-xml=test-reports/results.xml ^
                                 --html=test-reports/report.html ^
@@ -147,10 +147,11 @@ pipeline {
             // Publish test results using junit
             junit testResults: 'test-reports/results.xml', allowEmptyResults: true
             
-            // Archive test artifacts (including HTML report)
+            // Archive test artifacts (including HTML reports)
             archiveArtifacts artifacts: 'test-reports/**/*', allowEmptyArchive: true
             
-            echo "📋 Test reports archived. Download 'test-reports/report.html' from build artifacts to view detailed results."
+            echo "📋 Test reports archived."
+            echo "📊 Report: test-reports/report.html"
         }
         
         success {

@@ -9,9 +9,10 @@ dependencies = [
     "pytest>=7.4.0",
     "pytest-html>=4.0.0",
     "pytest-xdist>=3.0.0",
+    "pytest-selenium>=4.0.0",
     "python-dotenv>=1.0.0",
     "webdriver-manager>=4.0.0",
-    "browserstack-sdk>=1.0.0",
+    "browserstack-sdk>=1.17.0",
     "requests>=2.31.0",
 ]
 

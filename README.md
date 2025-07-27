@@ -1,130 +1,225 @@
-# BrowserStack Selenium Test Automation Framework
+# BrowserStack Cross-Browser Automation Framework
 
- Cross-browser test automation framework for product favoriting functionality across multiple platforms using BrowserStack. Demonstrates industry best practices for CI/CD integration, Page Object Model, and comprehensive test reporting.
-
-## ✅ Implementation Overview
-
-**Test Scenario**: Samsung Galaxy S20+ favoriting workflow
-- Login to `www.bstackdemo.com`
-- Filter products by Samsung brand
-- Favorite Galaxy S20+ device
-- Verify product appears on favorites page
-
-**Cross-Platform Execution**: Parallel testing across Windows Chrome, macOS Firefox, and Samsung Galaxy S22
+A comprehensive Selenium test automation framework for cross-browser testing using BrowserStack cloud infrastructure. Features enterprise-grade CI/CD integration, quality gates, and modern SDK-based test execution.
 
 ## 🚀 Quick Start
 
 ### Prerequisites
-- Python 3.10+, [uv package manager](https://github.com/astral-sh/uv), BrowserStack account
+- **BrowserStack Account**: [Free trial available](https://www.browserstack.com/)
+- **Python 3.10+**: For test execution
+- **uv Package Manager**: [Installation guide](https://github.com/astral-sh/uv)
 
-### Setup
+### Setup & Execution
 ```bash
-git clone <repository-url> && cd selenium-bstack-ab
-uv sync  # Auto-creates virtual environment and installs dependencies
+# 1. Clone and setup
+git clone <repository-url>
+cd selenium-bstack-ab
 
-# Configure BrowserStack credentials
+# 2. Set BrowserStack credentials
 export BROWSERSTACK_USERNAME=your_username
 export BROWSERSTACK_ACCESS_KEY=your_access_key
+
+# 3. Install dependencies
+uv sync --extra dev
+
+# 4. Run tests
+./test-pipeline-local.sh
 ```
 
-### Run Tests
+## 🎯 BrowserStack SDK Integration
+
+### **⚡ SDK-Based Testing (Recommended)**
+
+We support **BrowserStack SDK** for enhanced test automation with advanced features:
+
+#### **✅ SDK Benefits:**
+- **Automatic WebDriver Management**: No manual driver setup
+- **Centralized Configuration**: Platform config in `browserstack.yml`
+- **Enhanced Reporting**: Advanced test observability and insights
+- **Simplified Parallelization**: Built-in cross-browser execution
+- **Better Error Handling**: SDK manages connection issues automatically
+
+#### **🔧 SDK Configuration (`browserstack.yml`):**
+```yaml
+# Authentication via environment variables
+userName: ${BROWSERSTACK_USERNAME}
+accessKey: ${BROWSERSTACK_ACCESS_KEY}
+
+# Cross-browser testing platforms
+platforms:
+  - os: "Windows"
+    osVersion: "10"
+    browserName: "Chrome"
+    browserVersion: "latest"
+    
+  - os: "OS X" 
+    osVersion: "Ventura"
+    browserName: "Firefox"
+    browserVersion: "latest"
+    
+  - deviceName: "Samsung Galaxy S22"
+    osVersion: "12.0"
+    browserName: "Chrome"
+
+# Advanced features
+testObservability: true
+debug: true
+networkLogs: true
+```
+
+#### **🧪 Test Execution Options:**
+
+**🖥️ Local Development (Chrome)**
 ```bash
-./test-pipeline-local.sh                    # Full pipeline with quality checks
-uv run pytest tests/test_samsung_favorite_galaxy.py -n 3 -v  # Direct execution
+# Run tests locally for development/debugging
+EXECUTION_MODE=local uv run pytest tests/test_samsung_favorite_galaxy.py -v
 ```
 
-## 🏗️ Architecture
+**☁️ BrowserStack Cross-Browser Testing**
+```bash
+# SDK approach (automatic platform management - RECOMMENDED)
+export BROWSERSTACK_USERNAME=your_username
+export BROWSERSTACK_ACCESS_KEY=your_access_key
+uv run browserstack-sdk pytest tests/test_samsung_favorite_galaxy.py -v
+```
+
+### **📊 Unified Test Approach**
+
+| Feature | Unified Approach |
+|---------|-----------------|
+| **Configuration** | `browserstack.yml` |
+| **WebDriver** | Auto-managed by SDK |
+| **Parallelization** | Built-in cross-browser testing |
+| **Reporting** | Enhanced observability |
+| **Maintenance** | Low (SDK handles updates) |
+| **Error Handling** | Advanced SDK resilience |
+
+## 🏗️ Project Architecture
 
 ```
 selenium-bstack-ab/
-├── tests/                      # Test implementation
-├── pages/                      # Page Object Model
-├── utils/                      # Configuration & utilities
-├── scripts/                    # Development automation
-├── Jenkinsfile                 # CI/CD pipeline
-└── pyproject.toml             # Dependencies & tool config
+├── browserstack.yml          # SDK configuration
+├── tests/
+│   └── test_samsung_favorite_galaxy.py      # Unified test (local + BrowserStack)
+├── pages/                    # Page Object Model
+├── utils/                    # Configuration & helpers
+├── scripts/                  # Quality & utility scripts
+├── docs/                     # Evidence & documentation
+└── test-reports/            # Generated test reports
 ```
 
-**Design Patterns**: Page Object Model, environment-based configuration, BrowserStack SDK integration
+## 💻 Development Workflow
 
-## 🔧 Jenkins CI/CD
-
-### Pipeline Features
-- **Quality Gates**: Black formatting, Ruff linting, MyPy type checking
-- **Parallel Execution**: 3 browsers simultaneously via pytest-xdist
-- **Comprehensive Reporting**: JUnit XML + HTML reports + BrowserStack recordings
-- **Credential Management**: Secure BrowserStack authentication
-
-### Setup
+### **Code Quality Tools**
 ```bash
-# Quick Docker setup
-docker run -p 8080:8080 -v jenkins_home:/var/jenkins_home jenkins/jenkins:lts
+# Install dev dependencies
+uv sync --extra dev
 
-# Pipeline: "Pipeline script from SCM" → Git → `Jenkinsfile`
-# Credentials: Add `browserstack-creds` (username/password)
+# Code formatting
+uv run black --check --diff .    # Check formatting
+uv run black .                   # Apply formatting
+
+# Linting  
+uv run ruff check .              # Check linting
+uv run ruff check --fix .        # Fix auto-fixable issues
+
+# Type checking
+uv run mypy .                    # Static type analysis
+
+# All-in-one quality check
+./scripts/quality-check.sh
 ```
 
-## 🛠️ Development
+### **Test Execution Options**
 
-### Code Quality
+#### **1. Interactive Local Testing**
 ```bash
-./scripts/quality-check.sh      # All checks (Black, Ruff, MyPy)
-uv run black .                  # Code formatting
-uv run ruff check --fix .       # Linting with auto-fix
-uv run mypy .                   # Type checking
+./test-pipeline-local.sh
 ```
 
-### Virtual Environment
+#### **2. Direct Test Commands**
 ```bash
-uv sync                         # Auto-managed (recommended)
-source .venv/bin/activate       # Manual activation (optional)
+# BrowserStack testing (recommended)
+export EXECUTION_MODE=browserstack
+uv run browserstack-sdk pytest tests/test_samsung_favorite_galaxy.py -v
+
+# Local testing
+EXECUTION_MODE=local uv run pytest tests/test_samsung_favorite_galaxy.py -v
 ```
 
-### Test Execution
-```bash
-uv run pytest tests/ -v                               # All tests
-uv run pytest tests/test_samsung_favorite_galaxy.py   # Specific test
-uv run pytest --html=reports/report.html --self-contained-html  # Custom report
+#### **3. Jenkins CI/CD Pipeline**
+- Automatically runs unified tests on BrowserStack
+- Generates comprehensive reports
+- Archives artifacts: `report.html`
+
+## 🔧 Technical Implementation
+
+### **Core Features**
+- **Cross-Browser Testing**: Windows 10 Chrome, macOS Ventura Firefox, Samsung Galaxy S22
+- **Page Object Model**: Maintainable test structure with reusable components
+- **Configurable Test Data**: Environment-driven test parameters (credentials, target products)
+- **Parallel Execution**: Multiple concurrent test sessions for faster results
+- **Comprehensive Reporting**: JUnit XML + HTML reports with screenshots
+
+### **BrowserStack Integration**
+- **SDK Integration**: Latest BrowserStack SDK (v1.17.0+) for enhanced automation
+- **Unified Testing**: Single test file supports both local and BrowserStack execution
+- **Status Marking**: Real-time test status updates in BrowserStack dashboard
+- **Debug Features**: Network logs, console logs, and video recordings enabled
+
+### **Quality Assurance**
+- **Code Formatting**: Black (Python code formatter)
+- **Linting**: Ruff (fast Python linter)
+- **Type Checking**: MyPy (static type analysis)
+- **CI/CD Integration**: Jenkins pipeline with quality gates
+
+### **Security**
+- **Environment Variables**: Sensitive data (credentials) externalized
+- **No Hardcoded Secrets**: BrowserStack credentials via environment variables
+- **Secure CI/CD**: Jenkins credentials management integration
+
+## 📦 Dependencies
+
+### **Core Dependencies**
+```toml
+selenium>=4.15.0              # WebDriver automation
+browserstack-sdk>=1.17.0      # Enhanced BrowserStack integration
+pytest>=7.4.0                 # Test framework
+pytest-html>=4.0.0            # HTML test reports
+pytest-xdist>=3.0.0           # Parallel test execution
+python-dotenv>=1.0.0          # Environment variable management
 ```
 
-## 📊 Test Reports
-
-- **JUnit XML**: Jenkins integration (`test-reports/results.xml`)
-- **HTML Report**: Detailed view (`test-reports/report.html`)
-- **BrowserStack Dashboard**: Live sessions and recordings
-- **Console Logs**: Real-time execution feedback
-
-## 🔧 Tech Stack
-
-**Core**: Python 3.10, Selenium WebDriver, pytest, BrowserStack SDK  
-**Quality**: Black, Ruff, MyPy with strict type checking  
-**CI/CD**: Jenkins pipeline with parallel execution  
-**Reports**: pytest-html, JUnit XML, BrowserStack recordings  
-
-## 📋 Configuration
-
-All sensitive data externalized via environment variables:
-```bash
-BROWSERSTACK_USERNAME, BROWSERSTACK_ACCESS_KEY    # Required
-TEST_USERNAME, TEST_PASSWORD                      # Optional (defaults provided)
-TARGET_BRAND, TARGET_PRODUCT_NAME                 # Optional (defaults provided)
+### **Development Dependencies**
+```toml
+black>=23.0.0                 # Code formatting
+ruff>=0.1.0                   # Fast linting  
+mypy>=1.6.0                   # Static type checking
 ```
 
-## 🎯 Results
+## 🚀 Jenkins Setup
 
-Production-ready test automation demonstrating:
-- **Cross-browser compatibility** testing at scale
-- **Enterprise CI/CD** integration with quality gates
-- **Maintainable architecture** using industry patterns
-- **Comprehensive reporting** for stakeholders and debugging
+See [jenkins-setup.md](jenkins-setup.md) for complete Jenkins configuration including:
+- Pipeline script from SCM setup
+- BrowserStack credentials configuration  
+- Build triggers and notifications
+- Test report integration
 
-Perfect for validating web applications across multiple browsers with enterprise-level reliability.
+## 📸 Evidence & Documentation
 
-## 📸 Evidence & Screenshots
+Complete evidence documentation available in [`docs/README.md`](docs/README.md) including:
+- Jenkins CI/CD pipeline screenshots
+- BrowserStack cross-browser execution evidence  
+- Test results and reporting examples
 
-See [docs/README.md](docs/README.md) for screenshots demonstrating:
-- **Jenkins pipeline** with all stages passed
-- **BrowserStack parallel execution** across 3 browsers  
-- **Complete test workflow** validation
+## 🎯 Tech Challenge Completion
 
-Only 4 essential screenshots required for tech challenge evidence.
+✅ **All Requirements Met:**
+- **✓ Cross-Browser Testing**: Windows 10 Chrome, macOS Ventura Firefox, Samsung Galaxy S22
+- **✓ BrowserStack Integration**: Unified SDK-based approach implemented
+- **✓ Test Workflow**: Login → Samsung filter → Galaxy S20+ favorite → Verification
+- **✓ Parallel Execution**: 3 concurrent browser sessions
+- **✓ Security**: No hardcoded credentials, environment variable configuration
+- **✓ CI/CD Integration**: Complete Jenkins pipeline with quality gates
+- **✓ Evidence**: Comprehensive documentation with screenshots
+- **✓ GitHub Repository**: Public repository with complete implementation

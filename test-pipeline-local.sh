@@ -38,13 +38,16 @@ echo "✅ Code quality checks passed!"
 # Create reports directory
 mkdir -p test-reports
 
-# Run the 3 BrowserStack tests in parallel
-echo "☁️ Running 3 BrowserStack tests (Windows Chrome + macOS Firefox + Samsung Galaxy S22)..."
-EXECUTION_MODE=browserstack uv run pytest tests/test_samsung_favorite_galaxy.py \
-    -n 3 \
+echo ""
+echo "🚀 Running unified BrowserStack tests..."
+echo ""
+
+echo "☁️ Running BrowserStack tests (3 platforms automatically)..."
+export EXECUTION_MODE=browserstack
+uv run browserstack-sdk pytest tests/test_samsung_favorite_galaxy.py \
     -v \
     --junit-xml=test-reports/results.xml \
     --html=test-reports/report.html \
     --self-contained-html
 
-echo "✅ Tests completed! Check test-reports/report.html for results" 
+echo "✅ Tests completed! Check test-reports/ for results" 

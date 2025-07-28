@@ -39,12 +39,12 @@ echo "✅ Code quality checks passed!"
 mkdir -p test-reports
 
 echo ""
-echo "🚀 Running unified BrowserStack tests..."
+echo "🚀 Running BrowserStack tests..."
 echo ""
 
 echo "☁️ Running BrowserStack tests (3 platforms automatically)..."
 export EXECUTION_MODE=browserstack
-uv run browserstack-sdk pytest tests/test_samsung_favorite_galaxy.py \
+uv run browserstack-sdk pytest tests/test_samsung_favorite_galaxy.py::test_favorite_galaxy_browserstack \
     -v \
     --junit-xml=test-reports/results.xml \
     --html=test-reports/report.html \

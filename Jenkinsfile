@@ -109,9 +109,9 @@ pipeline {
                             
                             echo "Username: $BROWSERSTACK_CREDS_USR***"
                             
-                            # Run unified tests (supports both local and BrowserStack)
-                            echo "🚀 Running unified BrowserStack tests..."
-                            uv run browserstack-sdk pytest tests/test_samsung_favorite_galaxy.py \
+                            # Run only BrowserStack tests (3 platforms)
+                            echo "🚀 Running BrowserStack tests on 3 platforms..."
+                            uv run browserstack-sdk pytest tests/test_samsung_favorite_galaxy.py::test_favorite_galaxy_browserstack \
                                 -v \
                                 --junit-xml=test-reports/results.xml \
                                 --html=test-reports/report.html \
@@ -128,9 +128,9 @@ pipeline {
                             
                             echo Username: %BROWSERSTACK_CREDS_USR%***
                             
-                            REM Run unified tests (supports both local and BrowserStack)
-                            echo Running unified BrowserStack tests...
-                            uv run browserstack-sdk pytest tests/test_samsung_favorite_galaxy.py ^
+                            REM Run only BrowserStack tests (3 platforms)
+                            echo Running BrowserStack tests on 3 platforms...
+                            uv run browserstack-sdk pytest tests/test_samsung_favorite_galaxy.py::test_favorite_galaxy_browserstack ^
                                 -v ^
                                 --junit-xml=test-reports/results.xml ^
                                 --html=test-reports/report.html ^

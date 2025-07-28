@@ -72,7 +72,7 @@ networkLogs: true
 **🖥️ Local Development (Chrome)**
 ```bash
 # Run tests locally for development/debugging
-EXECUTION_MODE=local uv run pytest tests/test_samsung_favorite_galaxy.py -v
+EXECUTION_MODE=local uv run pytest tests/test_samsung_favorite_galaxy.py::test_favorite_galaxy_local -v
 ```
 
 **☁️ BrowserStack Cross-Browser Testing**
@@ -80,7 +80,7 @@ EXECUTION_MODE=local uv run pytest tests/test_samsung_favorite_galaxy.py -v
 # SDK approach (automatic platform management - RECOMMENDED)
 export BROWSERSTACK_USERNAME=your_username
 export BROWSERSTACK_ACCESS_KEY=your_access_key
-uv run browserstack-sdk pytest tests/test_samsung_favorite_galaxy.py -v
+uv run browserstack-sdk pytest tests/test_samsung_favorite_galaxy.py::test_favorite_galaxy_browserstack -v
 ```
 
 ### **📊 Unified Test Approach**
@@ -141,10 +141,10 @@ uv run mypy .                    # Static type analysis
 ```bash
 # BrowserStack testing (recommended)
 export EXECUTION_MODE=browserstack
-uv run browserstack-sdk pytest tests/test_samsung_favorite_galaxy.py -v
+uv run browserstack-sdk pytest tests/test_samsung_favorite_galaxy.py::test_favorite_galaxy_browserstack -v
 
 # Local testing
-EXECUTION_MODE=local uv run pytest tests/test_samsung_favorite_galaxy.py -v
+EXECUTION_MODE=local uv run pytest tests/test_samsung_favorite_galaxy.py::test_favorite_galaxy_local -v
 ```
 
 #### **3. Jenkins CI/CD Pipeline**
